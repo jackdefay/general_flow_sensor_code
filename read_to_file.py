@@ -8,14 +8,14 @@ import time
 start_time = time.time()
 
 #set save file name
-filename = 'test1'
+filename = '090220_test3.csv'
 
 #setup dataframe
 df = pd.DataFrame([[start_time,1,2,3,4,5,6,7,8]], columns=['time', 'mag1', 'mag2', 'mag3', 'mag4', 'mag5', 'mag6', 'mag7', 'mag8'])
 
 
 #setup the serial line
-ser = serial.Serial('COM12', 9600)
+ser = serial.Serial('COM7', 9600)
 time.sleep(2)
 
 #ADD A KEYBOARD INTERRUPT TO SAVE TO FILE
@@ -36,6 +36,7 @@ def readArduino(df):
     stringArray = string.split(", ")
     magnitudeArray = []
     for cell in stringArray:
+        # print(cell)
         magnitudeArray.append(int(cell))
 
     return addData(df, [magnitudeArray])
