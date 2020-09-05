@@ -8,17 +8,17 @@ import time
 start_time = time.time()
 
 #set save file name
-filename = '090220_test3.csv'
+t = time.localtime()
+filename = str(t.tm_mon) + str(t.tm_mday) + str(t.tm_year) + '_experiment_' + str(t.tm_hour) + '.' + str(t.tm_min) + '.' + str(t.tm_sec)  + '.csv'
 
 #setup dataframe
 df = pd.DataFrame([[start_time,1,2,3,4,5,6,7,8]], columns=['time', 'mag1', 'mag2', 'mag3', 'mag4', 'mag5', 'mag6', 'mag7', 'mag8'])
-
+df.to_csv(path_or_buf=filename, mode='a', index=False)
+df = pd.DataFrame(None)
 
 #setup the serial line
 ser = serial.Serial('COM7', 9600)
 time.sleep(2)
-
-#ADD A KEYBOARD INTERRUPT TO SAVE TO FILE
 
 def readArduino(df):
     string = ''
@@ -43,6 +43,8 @@ def readArduino(df):
 
 def addData(df, magnitudeArray):
     magnitudeArray[0].insert(0, (time.time() - start_time))
+    if(not len(magnitudeArray[0]) == 9):
+        magnitudeArray = [[0,0,0,0,0,0,0,0,0]]
     frame = pd.DataFrame(magnitudeArray, columns=['time', 'mag1', 'mag2', 'mag3', 'mag4', 'mag5', 'mag6', 'mag7', 'mag8'])
     print(frame)
     return pd.concat([df, frame], axis=0)
@@ -50,7 +52,10 @@ def addData(df, magnitudeArray):
 while(True):
     try:
         df = readArduino(df)
+        if(df.shape[0]%100 == 0):
+            df.to_csv(path_or_buf=filename, mode='a', index=False, header=False)
+            df = pd.DataFrame(None)
     except KeyboardInterrupt:
-        df.to_csv(path_or_buf=filename, index=False)
+        df.to_csv(path_or_buf=filename, mode='a', index=False, header=False)
         print(df)
         raise
